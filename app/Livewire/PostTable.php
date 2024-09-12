@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -24,7 +25,7 @@ class PostTable extends Component
     public $search;
     public $existingImage;
     
-     
+    #[On('xxx')] 
     public function render()
     {   
         if(!$this->search) {
@@ -49,7 +50,19 @@ class PostTable extends Component
     public function hapus($get_id)
     {
         try {
-            Post::find($get_id)->delete();
+            $post = Post::find($get_id);
+            
+            if ($post) {
+                // Hapus file dari local storage
+                $filePath = 'public/posts/' . $post->image;
+
+                if(Storage::exists($filePath)) {
+                    Storage::delete($filePath);
+                } 
+            }
+
+            $post->delete();
+
         } catch (\Exception $e) {
             $this->dispatch('sweet-alert', title:'Data Gagal Diubah', icon:'error');
         }
